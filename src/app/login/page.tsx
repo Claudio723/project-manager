@@ -1,7 +1,7 @@
 "use client";
 
 import { createClient } from "@/lib/supabase/client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
@@ -9,11 +9,16 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [supabase, setSupabase] = useState<ReturnType<typeof createClient> | null>(null);
   const router = useRouter();
-  const supabase = createClient();
+
+  useEffect(() => {
+    setSupabase(createClient());
+  }, []);
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
+    if (!supabase) return;
     setLoading(true);
     setError(null);
 
@@ -60,7 +65,7 @@ export default function LoginPage() {
           )}
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || !supabase}
             className="w-full py-3 bg-black text-white rounded-xl font-medium hover:bg-gray-800 disabled:opacity-50 transition"
           >
             {loading ? "Signing in…" : "Sign in"}
